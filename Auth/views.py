@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import ParseError,ValidationError
 from rest_framework.permissions import IsAuthenticated
 from .serializers import UserCreationSerializer
 from .models import User,OneTimeToken
 from django.core.mail import send_mail
 from django.conf import settings
 from rest_framework import status
+from django.core.signing import TimestampSigner
 
 
 class SignupApiView(APIView):
@@ -107,10 +108,15 @@ class PasswordResetEmailAPIView(APIView):
                     "reason" : e
                     },
                 )
+            # Block the user from accessing the account until the email is verified 
+            user_obj.is_active = False
+            user_obj.save()
+
             return Response({
                 'token' : token,
                 'detail' : 'email sent!'
             })
+        
         except User.DoesNotExist:
             raise ParseError('User with the given email does not exist!')
      
@@ -120,10 +126,54 @@ class PasswordResetConfirmAPIview(APIView):
         try:
             token = OneTimeToken.objects.get(token=token_,type='RESET')
             if token.is_valid():
+                # Allow the user access to the account
+                user = token.user
+                user.is_active = True
+                user.save()
+                # Delete the token.... It has outlived its usefulness
+                token.delete()
+                signer = TimestampSigner(salt='random')
+                secret_token = signer.sign()
                 return Response({
                     'detail' : "Verified!"
                 })
             raise ParseError("Invalid Token")
         except OneTimeToken.DoesNotExist:
             raise ParseError('Token does not exist')
+        
+
+class PasswordChangeApiView(APIView):
+    """This view should handle requests to change the password for the given user
+    It should be protected to prevent direct access to it without passing the earlier views
+    But for now it will just change the password without any confirmation if the email has been confirmed
+    """
+    def post(self,request):
+        try:
+            password = request.data['password']
+            if len(password) < 8:
+                raise ParseError('Password length is lesser than the minimum')
+            if request.user.is_authenticated:
+            # For authenticated users requesting a password change
+                user = request.user
+                user.password = password
+                user.save()
+                return Response({
+                    'detail' : 'Password changed'
+                }, status=status.HTTP_200_OK)
+            try:
+                username = request.data['username']
+                user = User.objects.get(username=username)
+                user.password = password
+                user.save()
+                return Response({
+                    'detail' : 'Password changed'
+                }, status=status.HTTP_200_OK)
+            except KeyError:
+                raise ParseError('Username is required')
+            except User.DoesNotExist:
+                raise ValidationError('Username is not valid')
+        except KeyError:
+            raise ValidationError("Password must be provided")
+        
+
 # Create your views here.
