@@ -15,7 +15,7 @@ class AllProductsApiView(ListAPIView):
     serializer_class =BootsSerializer
     queryset = Boots.objects.all()
     filter_backends = [OrderingFilter]
-    pagination_class = [PageNumberPagination]
+    pagination_class = PageNumberPagination
 
 
 class ProductsRetrieveApiView(APIView):
@@ -73,12 +73,15 @@ class ReviewsAPIView(APIView):
     """
     def post(self,request):
         # Only authenticated users should be able to drop a review
-        if not request.user.is_authenticated and request.user.is_verified:
+        try:
+            if not request.user.is_authenticated and request.user.is_verified:
+                raise NotAuthenticated('User must be authenticated to drop a review')
+            data = request.data
+            serializer = ReviewsSerializer(data=data)
+            if serializer.is_valid(raise_exception=True):
+                return Response(serializer.data,status=status.HTTP_201_CREATED)
+        except AttributeError:
             raise NotAuthenticated('User must be authenticated to drop a review')
-        data = request.data
-        serializer = ReviewsSerializer(data=data)
-        if serializer.is_valid(raise_exception=True):
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
         
     def get(self,request):
         # Get all reviews for that particular product

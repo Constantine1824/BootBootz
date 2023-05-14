@@ -1,14 +1,29 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import ParseError,ValidationError
+from rest_framework.exceptions import ParseError,ValidationError,AuthenticationFailed,NotAcceptable
 from rest_framework.permissions import IsAuthenticated
 from .serializers import UserCreationSerializer
 from .models import User,OneTimeToken
 from django.core.mail import send_mail
 from django.conf import settings
 from rest_framework import status
-from django.core.signing import TimestampSigner
+from django.core.signing import TimestampSigner,BadSignature
+from datetime import timedelta
+
+
+def get_signed_token(salt:str,value:str):
+    signer = TimestampSigner(salt=salt)
+    sign = signer.sign(value=value)
+    return sign
+
+def decode_signed_token(salt:str,value:str):
+    signer = TimestampSigner(saalt=salt)
+    try:
+        sign = signer.unsign(value,max_age=timedelta(hours=1))
+        return sign
+    except BadSignature:
+        raise AuthenticationFailed('Invalid token')
 
 
 class SignupApiView(APIView):
@@ -21,6 +36,7 @@ class SignupApiView(APIView):
             serializer.save()
         return Response(serializer.data,status=status.HTTP_201_CREATED)
         
+
 class EmailSendApiView(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request):
@@ -56,6 +72,7 @@ class EmailSendApiView(APIView):
                  },status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
           
+
 class EmailVerifyApiView(APIView):
     def post(self,request):
         token = request.data['token']
@@ -77,6 +94,7 @@ class EmailVerifyApiView(APIView):
                     })
         except OneTimeToken.DoesNotExist:
             raise ParseError('Invalid Token')
+
 
 class PasswordResetEmailAPIView(APIView):
     def post(self,request):
@@ -120,6 +138,7 @@ class PasswordResetEmailAPIView(APIView):
         except User.DoesNotExist:
             raise ParseError('User with the given email does not exist!')
      
+
 class PasswordResetConfirmAPIview(APIView):
     def post(self,request):
         token_ = request.data['token']
@@ -132,10 +151,10 @@ class PasswordResetConfirmAPIview(APIView):
                 user.save()
                 # Delete the token.... It has outlived its usefulness
                 token.delete()
-                signer = TimestampSigner(salt='random')
-                secret_token = signer.sign()
+                signed_token = get_signed_token(salt='random',value=user.username)
                 return Response({
-                    'detail' : "Verified!"
+                    'detail' : "Verified!",
+                    'auth_token' : signed_token
                 })
             raise ParseError("Invalid Token")
         except OneTimeToken.DoesNotExist:
@@ -150,8 +169,6 @@ class PasswordChangeApiView(APIView):
     def post(self,request):
         try:
             password = request.data['password']
-            if len(password) < 8:
-                raise ParseError('Password length is lesser than the minimum')
             if request.user.is_authenticated:
             # For authenticated users requesting a password change
                 user = request.user
@@ -162,16 +179,23 @@ class PasswordChangeApiView(APIView):
                 }, status=status.HTTP_200_OK)
             try:
                 username = request.data['username']
-                user = User.objects.get(username=username)
-                user.password = password
-                user.save()
-                return Response({
+                try:
+                    signed_token = request.META.get('Signed_token')
+                    decoded_username = decode_signed_token(salt='random',value=signed_token)
+                    user = User.objects.get(username=username)
+                    if user.username != decoded_username:
+                        raise ParseError('')
+                    user.password = password
+                    user.save()
+                    return Response({
                     'detail' : 'Password changed'
-                }, status=status.HTTP_200_OK)
+                     }, status=status.HTTP_200_OK)
+                except KeyError:
+                    raise NotAcceptable('Signature header must be set')
+                except User.DoesNotExist:
+                    raise ValidationError('Username is not valid')
             except KeyError:
                 raise ParseError('Username is required')
-            except User.DoesNotExist:
-                raise ValidationError('Username is not valid')
         except KeyError:
             raise ValidationError("Password must be provided")
         
