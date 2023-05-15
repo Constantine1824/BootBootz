@@ -18,9 +18,17 @@ class AllProductsApiView(ListAPIView):
     pagination_class = PageNumberPagination
 
 
+
 class ProductsRetrieveApiView(APIView):
     def get(self,request,slug):
         boot = Boots.objects.get(slug=slug)
+        serializer = BootsSerializer(boot)
+        return Response(serializer.data)
+
+class VariantsListApiView(APIView):
+    """This retrieves a list of boots variants given the slug of the boots"""
+    def get(self,request,pk):
+        boot = Boots.objects.get(name=pk)
         variants = boot.bootsvariants_set.all()
         serializer = BootsVariantsSerializer(variants,many=True)
         return Response(serializer.data)
@@ -77,10 +85,10 @@ class ReviewsAPIView(APIView):
             if not request.user.is_authenticated and request.user.is_verified:
                 raise NotAuthenticated('User must be authenticated to drop a review')
             data = request.data
-            serializer = ReviewsSerializer(data=data)
+            serializer = ReviewsSerializer(data=data,user=request.user)
             if serializer.is_valid(raise_exception=True):
                 return Response(serializer.data,status=status.HTTP_201_CREATED)
-        except AttributeError:
+        except AttributeError: # Anonymous users throw an AttributeError
             raise NotAuthenticated('User must be authenticated to drop a review')
         
     def get(self,request):

@@ -15,7 +15,8 @@ class TestAuth:
             'email' : 'ayomidet905@gmail.com',
             'password2' : 'Constant',
             'first_name' : 'Ayomide',
-            'last_name' : 'Taiwo'
+            'last_name' : 'Taiwo',
+            'is_verified' : False
         }
         serializer = UserSerializer(data=data)
         serializer.is_valid(raise_exception=True)

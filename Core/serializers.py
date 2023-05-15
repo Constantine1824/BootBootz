@@ -1,6 +1,8 @@
+from rest_framework.fields import empty
 from rest_framework.serializers import ModelSerializer,CharField
 from .models import Boots,Address,Reviews,BootsVariants,Size
 from Auth.models import User
+from Auth.serializers import UserSerializer
 
 class AddressCreationSerializer(ModelSerializer):
     """This serializer creates an address object"""
@@ -43,19 +45,22 @@ class BootsVariantsSerializer(ModelSerializer):
 
 class ReviewsSerializer(ModelSerializer):
 
-    user = CharField(read_only = True)
+    user = UserSerializer(read_only = True)
     product = CharField()
+
+    def __init__(self, instance=None, data=...,user=None, **kwargs):
+        self.user = user
+        super().__init__(instance, data, **kwargs)
 
     class Meta:
         model = Reviews
         fields = '__all__'
 
     def save(self,validated_data):
-        user = self.context['request'].user
         product_name = validated_data.pop('product',None)
         boots_obj = Boots.objects.get(product_name)
         instance = self.Meta.model(**validated_data)
         instance.product = boots_obj
-        instance.user = user
+        instance.user = self.user
         instance.save()
         return instance
