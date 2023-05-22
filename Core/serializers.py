@@ -1,6 +1,6 @@
 from rest_framework.fields import empty
 from rest_framework.serializers import ModelSerializer,CharField
-from .models import Boots,Address,Reviews,BootsVariants,Size
+from .models import Boots,Address,Reviews,BootsVariants
 from Auth.models import User
 from Auth.serializers import UserSerializer
 
@@ -12,7 +12,6 @@ class AddressCreationSerializer(ModelSerializer):
         model = Address
         fields = '__all__'
 
-
     def create(self, validated_data):
         print(self.initial_data)
         username = validated_data.pop('user',None)
@@ -21,17 +20,10 @@ class AddressCreationSerializer(ModelSerializer):
         instance.user = user_obj
         instance.save()
         return instance
-        
-class SizeSerializer(ModelSerializer):
 
-    class Meta:
-        model = Size
-        fields = ['size']
 
 class BootsSerializer(ModelSerializer):
     
-    size = SizeSerializer(many=True)
-
     class Meta:
         model = Boots
         fields = '__all__'

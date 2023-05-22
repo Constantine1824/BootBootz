@@ -4,6 +4,7 @@ from django.template.defaultfilters import slugify
 from django.conf import settings
 import random
 import string, datetime
+from django.contrib.postgres.fields import ArrayField
 
 User = settings.AUTH_USER_MODEL
 
@@ -29,7 +30,8 @@ class Boots(models.Model):
         ('R',_('Restocked'))
     )
     name = models.CharField(max_length=255)
-    size = models.ManyToManyField('Size')
+    # size = models.ManyToManyField('Size')
+    sizes_available = ArrayField(base_field=models.IntegerField())
     price = models.DecimalField(max_digits=9,decimal_places=2)
     manufacturer = models.CharField(max_length=100)
     default_img = models.FileField(upload_to='media/default')
@@ -81,10 +83,10 @@ class Reviews(models.Model):
     class Meta:
         verbose_name_plural = 'Reviews'
 
-class Size(models.Model):
-    size = models.IntegerField()
+# class Size(models.Model):
+#     size = models.IntegerField()
 
-    def __str__(self):
-        return f'{self.size}'
+#     def __str__(self):
+#         return f'{self.size}'
 
 # Create your models here.
