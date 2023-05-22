@@ -38,12 +38,18 @@ class Boots(models.Model):
     category = models.CharField(max_length=255, choices=category_choices)
     slug = models.SlugField(blank=True)
     availability_status = models.CharField(max_length=24,choices=status)
-    date_added = models.DateTimeField(default=datetime.datetime.now())
+    date_added = models.DateTimeField(auto_now_add=True)
     newly_added = models.BooleanField(default=True)
     rating = models.IntegerField(default=0)
+    variants = models.ManyToManyField('Variants')
 
     class Meta:
         verbose_name_plural = 'Boots'
+    
+    
+    def __str__(self):
+        return self.name + " " + self.manufacturer
+
 
     def save(self, *args, **kwargs):
         random_str = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
@@ -54,11 +60,8 @@ class Boots(models.Model):
         self.slug = slug
         super(Boots, self).save(*args, **kwargs)
 
-    def __str__(self):
-        return self.name + " " + self.manufacturer
-
-class BootsVariants(models.Model):
-    boot = models.ForeignKey(Boots,on_delete=models.CASCADE)
+class Variants(models.Model):
+    #boot = models.ForeignKey(Boots,on_delete=models.CASCADE)
     quantity_available = models.IntegerField()
     color = models.CharField(max_length=23,blank=False)
     image_1 = models.FileField(upload_to='media')
@@ -82,11 +85,5 @@ class Reviews(models.Model):
     
     class Meta:
         verbose_name_plural = 'Reviews'
-
-# class Size(models.Model):
-#     size = models.IntegerField()
-
-#     def __str__(self):
-#         return f'{self.size}'
 
 # Create your models here.

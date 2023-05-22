@@ -65,6 +65,7 @@ ROOT_URLCONF = 'BB.urls'
 
 AUTH_USER_MODEL = 'Auth.User'
 
+# Rest framework config
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES' : [
         'rest_framework_simplejwt.authentication.JWTAuthentication'
@@ -75,6 +76,7 @@ REST_FRAMEWORK = {
 
 from datetime import timedelta
 
+# Simple JWT Config
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=20),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
@@ -179,6 +181,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Email Config
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL')
@@ -196,4 +199,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Payment gateway config
 PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY')

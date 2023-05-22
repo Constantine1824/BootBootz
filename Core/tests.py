@@ -3,7 +3,7 @@ import json
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
-from .serializers import BootsSerializer,BootsVariantsSerializer
+from .serializers import BootsSerializer
 import Core.signals
 from Auth.models import AbstractUser,User
 from urllib.parse import urlencode
@@ -36,19 +36,19 @@ class TestProductsView:
         assert response.status_code == 200
         assert response.json() == serializer.data
 
-    @pytest.mark.django_db
-    def test_variants_retrieval(self,products_obj,api_client):
-        boots_obj = products_obj.objects.get(id=1)
-        name = boots_obj.name
-        variants = boots_obj.bootsvariants_set.all()
-        serializer = BootsVariantsSerializer(variants,many=True)
-        url = reverse('variants list', kwargs={
-            'pk' : name
-        })
-        response = api_client.get(url)
-        assert response.status_code == 200
-        assert response.json() == serializer.data
-        assert len(serializer.data) == 0
+    # @pytest.mark.django_db
+    # def test_variants_retrieval(self,products_obj,api_client):
+    #     boots_obj = products_obj.objects.get(id=1)
+    #     name = boots_obj.name
+    #     variants = boots_obj.bootsvariants_set.all()
+    #     serializer = BootsVariantsSerializer(variants,many=True)
+    #     url = reverse('variants list', kwargs={
+    #         'pk' : name
+    #     })
+    #     response = api_client.get(url)
+    #     assert response.status_code == 200
+    #     assert response.json() == serializer.data
+    #     assert len(serializer.data) == 0
 
     @pytest.mark.django_db
     def test_new_arrival(self,products_obj,api_client):

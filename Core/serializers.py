@@ -1,8 +1,8 @@
-from rest_framework.fields import empty
 from rest_framework.serializers import ModelSerializer,CharField
-from .models import Boots,Address,Reviews,BootsVariants
+from .models import Boots,Address,Reviews
 from Auth.models import User
 from Auth.serializers import UserSerializer
+from Admin.serializers import VariantsSerializer
 
 class AddressCreationSerializer(ModelSerializer):
     """This serializer creates an address object"""
@@ -24,15 +24,10 @@ class AddressCreationSerializer(ModelSerializer):
 
 class BootsSerializer(ModelSerializer):
     
+    variants = VariantsSerializer(many=True)
+
     class Meta:
         model = Boots
-        fields = '__all__'
-
-class BootsVariantsSerializer(ModelSerializer):
-    boot = BootsSerializer()
-
-    class Meta:
-        model = BootsVariants
         fields = '__all__'
 
 class ReviewsSerializer(ModelSerializer):

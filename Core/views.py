@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound,ParseError,NotAuthenticated
 from .permissions import IsVerified
 from .models import Boots
-from .serializers import AddressCreationSerializer,BootsSerializer,BootsVariantsSerializer,ReviewsSerializer
+from .serializers import AddressCreationSerializer,BootsSerializer,ReviewsSerializer
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,28 +11,17 @@ from django.db.models import Q
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 
-class AllProductsApiView(ListAPIView):
+class ProductsListApiView(ListAPIView):
     serializer_class =BootsSerializer
     queryset = Boots.objects.all()
     filter_backends = [OrderingFilter]
     pagination_class = PageNumberPagination
-
-
 
 class ProductsRetrieveApiView(APIView):
     def get(self,request,slug):
         boot = Boots.objects.get(slug=slug)
         serializer = BootsSerializer(boot)
         return Response(serializer.data)
-
-class VariantsListApiView(APIView):
-    """This retrieves a list of boots variants given the slug of the boots"""
-    def get(self,request,pk):
-        boot = Boots.objects.get(name=pk)
-        variants = boot.bootsvariants_set.all()
-        serializer = BootsVariantsSerializer(variants,many=True)
-        return Response(serializer.data)
-
 
 class NewArrivalsApiView(ListAPIView):
     """This view should return a queryset based on how long the goods has been added
@@ -66,7 +55,7 @@ class CategoryAPIView(APIView):
             return Response(serializer.data,status=status.HTTP_200_OK)
         raise NotFound()
     
-class MakerAPIView(APIView):
+class ManufacturerAPIView(APIView):
     def get(self,request,pk):
         boot_obj = Boots.objects.filter(manufacturer=pk)
         if boot_obj is not None:
@@ -97,14 +86,14 @@ class ReviewsAPIView(APIView):
         name = request.GET.get('name')
          # If the product name is not provided, raise an exception
         if name is None:
-            raise ParseError()
+            raise ParseError('Product name should be provided')
         try:
             boots_obj = Boots.objects.get(name=name)
             reviews = boots_obj.reviews_set.all()
             serializer = ReviewsSerializer(reviews,many=True)
             return Response(serializer.data,status=status.HTTP_200_OK)
         except Boots.DoesNotExist:
-            raise NotFound('Product with the given name is not ')
+            raise NotFound('Product with the given name does not exist ')
         
 
 class CreateAddressApiView(APIView):
