@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer,CharField
 from .models import Order
 from Auth.models import User
-from Core.models import Address,Boots,BootsVariants
+from Core.models import Address,Boots,Variants
 from rest_framework.exceptions import APIException,ValidationError,ParseError
 from rest_framework import serializers
 

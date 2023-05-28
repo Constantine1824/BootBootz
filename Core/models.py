@@ -69,7 +69,7 @@ class Variants(models.Model):
     image_3 = models.FileField(upload_to='media',blank=True)
 
     def __str__(self):
-        return self.color + ' | ' + self.boot.name
+        return self.color
 
     class Meta:
         verbose_name_plural = 'Boots Variants'
