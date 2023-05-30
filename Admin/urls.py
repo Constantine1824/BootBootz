@@ -8,6 +8,6 @@ router.register('products',ProductViewSets,'products')
 router.register('order',OrderViewSets,'order')
 
 urlpatterns = [
-    path('',include(router.urls),name='admin api')
+    path('admin/',include(router.urls),name='admin api')
 ]
 

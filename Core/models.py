@@ -8,6 +8,13 @@ from django.contrib.postgres.fields import ArrayField
 
 User = settings.AUTH_USER_MODEL
 
+class TimeStampedField(models.Model):
+    date_added = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
 class Address(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     address = models.CharField(max_length=355)
@@ -18,7 +25,7 @@ class Address(models.Model):
         return self.user.username + " " + self.city
 
 
-class Boots(models.Model):
+class Boots(TimeStampedField):
     category_choices = (
         ('K','Kids'),
         ('M', 'Men'),
@@ -38,7 +45,6 @@ class Boots(models.Model):
     category = models.CharField(max_length=255, choices=category_choices)
     slug = models.SlugField(blank=True)
     availability_status = models.CharField(max_length=24,choices=status)
-    date_added = models.DateTimeField(auto_now_add=True)
     newly_added = models.BooleanField(default=True)
     rating = models.IntegerField(default=0)
     variants = models.ManyToManyField('Variants')
@@ -60,8 +66,8 @@ class Boots(models.Model):
         self.slug = slug
         super(Boots, self).save(*args, **kwargs)
 
-class Variants(models.Model):
-    #boot = models.ForeignKey(Boots,on_delete=models.CASCADE)
+
+class Variants(TimeStampedField):
     quantity_available = models.IntegerField()
     color = models.CharField(max_length=23,blank=False)
     image_1 = models.FileField(upload_to='media')
@@ -74,7 +80,7 @@ class Variants(models.Model):
     class Meta:
         verbose_name_plural = 'Boots Variants'
 
-class Reviews(models.Model):
+class Reviews(TimeStampedField):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     product = models.ForeignKey(Boots,on_delete =models.CASCADE)
     star = models.IntegerField()
