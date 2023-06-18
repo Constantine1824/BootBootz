@@ -10,12 +10,13 @@ from rest_framework import status
 from django.db.models import Q
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
+from Admin.filters import DateTimeCustomFilter
 
 class ProductsListApiView(ListAPIView):
     serializer_class =BootsSerializer
     queryset = Boots.objects.all()
-    filter_backends = [OrderingFilter]
-    pagination_class = PageNumberPagination
+    filter_backends = [OrderingFilter,DateTimeCustomFilter]
+    #pagination_class = PageNumberPagination
 
 class ProductsRetrieveApiView(APIView):
     def get(self,request,slug):

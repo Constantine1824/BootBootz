@@ -38,7 +38,7 @@ class Boots(TimeStampedField):
     )
     name = models.CharField(max_length=255)
     # size = models.ManyToManyField('Size')
-    sizes_available = ArrayField(base_field=models.IntegerField())
+    #sizes_available = ArrayField(base_field=models.IntegerField())
     price = models.DecimalField(max_digits=9,decimal_places=2)
     manufacturer = models.CharField(max_length=100)
     default_img = models.FileField(upload_to='media/default')

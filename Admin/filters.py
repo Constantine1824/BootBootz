@@ -1,6 +1,7 @@
 from rest_framework.filters import BaseFilterBackend
 from django.utils.timezone import now
 from rest_framework import exceptions
+from datetime import timedelta
 
 
 class DateTimeCustomFilter(BaseFilterBackend):
@@ -22,30 +23,48 @@ class DateTimeCustomFilter(BaseFilterBackend):
         super().__init__()
      
     def filter_queryset(self, request, queryset, view):
+        print(view.queryset.get(id=1))
         query = self.get_filter_query_type(request)
-        return super().filter_queryset(request, queryset, view)
+        if query == 'days':
+            return self.filter_by_days(request,queryset)
+        if query == 'hours':
+            return self.filter_by_hours(request,queryset)
+        if query == 'month':
+            return self.filter_by_month(request,queryset)
+        # return super().filter_queryset(request, queryset, view)
     
     def get_filter_query_type(self,request) -> None | str:
         """This gets the exact field by which it is being filtered"""
         if 'days' in request.GET:
             return 'days'
-        if 'months' in request.GET:
-            return 'months'
+        if 'month' in request.GET:
+            return 'month'
         if 'hours' in request.GET:
             return 'hours'
         return None
     
     def get_filter_field(self,request):
-        try:
-            filter_by = request.GET['filter_by']
-            if filter_by != 'last_modified' or 'date_added':
-                raise exceptions.ParseError('filter_by must either be last_modified or date_added')
-            return filter_by
-        except KeyError:
-            raise exceptions.ParseError('Filter_by needs to be part of the query_params')
+            filter_by = request.GET.get('filter_by', None)
+            if filter_by == 'last_modified':
+                return filter_by
+            return None
+
+    def get_operator(self,request):
+       try:
+            arg = request.GET.get('arg')
+            if arg == 'gt':
+                return 'gt'
+            if arg == 'lt':
+                return 'lt'
+       except KeyError:
+            return 'eq'
     
-    def filter_by_days(self,request):
-        pass
+    
+    def filter_by_days(self,request,queryset):
+        query = int(request.GET.get('days'))
+        if self.get_filter_field(request) is not None:
+            return self.filter_by_last_modified(queryset,request=request,days=query)
+        return self.filter_by_date_added(queryset,request=request,days=query)
 
     def filter_by_month(self,request,queryset):
         year = None
@@ -57,38 +76,102 @@ class DateTimeCustomFilter(BaseFilterBackend):
             pass
         if month not in self.months:
             raise exceptions.ParseError('Month param should be within the range of 1-12')
-        if self.get_filter_field(request) == 'last_modified':
+        if self.get_filter_field(request) is not None:
             return self.filter_by_last_modified(queryset,year=year,month=month)
         return self.filter_by_date_added(queryset,year=year,month=month)
 
-    def filter_by_hours(self,request):
-        try:
+    def filter_by_hours(self,request,queryset):
             hour = request.GET['hours']
             hour = int(hour)
-            # queryset = 
-        except KeyError:
-            raise
+            if self.get_filter_field(request) is not None:
+                return self.filter_by_last_modified(queryset,request=request,hour=hour)
+            return self.filter_by_date_added(queryset,request=request,hour=hour)
 
     def filter_by_date_added(self,queryset,*args, **kwargs):
         #For month 
-        if kwargs['month'] and kwargs['year'] is not None:
-           month = kwargs['month']
-           year = kwargs['year']
-           filtered_queryset = queryset.objects.filter(date_added__month = self.months[month],date_added__year=int(year))
-           return filtered_queryset 
-        if kwargs['month']:
-            month = kwargs['month']
-            filtered_queryset = queryset.objects.filter(date_added__month=self.months[month],date_added__year=now().year)
-            return filtered_queryset
+        try:
+            if kwargs['month'] and kwargs['year'] is not None:
+                month = kwargs['month']
+                year = kwargs['year']
+                print(queryset)
+                filtered_queryset = queryset.filter(date_added__month = self.months[month],date_added__year=int(year))
+                return filtered_queryset 
+            if kwargs['month']:
+                month = kwargs['month']
+                print(queryset)
+                filtered_queryset = queryset.filter(date_added__month=self.months[month],date_added__year=now().year)
+                return filtered_queryset
+        except KeyError:
+            pass
+        #for hour
+        try:
+            if kwargs['hour']:
+                hour = kwargs['hour']
+                threshold = now() - timedelta(hours=hour)
+                operator = self.get_operator(kwargs['request'])
+                if operator == 'Gt':
+                    return queryset.filter(date_added__gt=threshold)
+                    
+                if operator == 'lt':
+                    return queryset.filter(date_added__lt=threshold)
+                    
+                if operator == 'eq':
+                    return queryset.filter(date_added__lte=threshold)
+        except KeyError:
+            pass
+         #for days
+        if kwargs['days']:
+            days = kwargs['days']
+            threshold = now() - timedelta(days=days)
+            operator = self.get_operator(kwargs['request'])
+            if operator == 'Gt':
+                return queryset.filter(date_added__gt=threshold)
+                
+            if operator == 'lt':
+                return queryset.filter(date_added__lt=threshold)
+                
+            if operator == 'eq':
+                return queryset.filter(date_added__lte=threshold)
 
     def filter_by_last_modified(self,queryset,*args, **kwargs):
          #For month 
-        if kwargs['month'] and kwargs['year']:
-           month = kwargs['month']
-           year = kwargs['year']
-           filtered_queryset = queryset.objects.filter(date_added__month = self.months[month],date_added__year=int(year))
-           return filtered_queryset 
-        if kwargs['month']:
-            month = kwargs['month']
-            filtered_queryset = queryset.objects.filter(date_added__month=self.months[month],date_added__year=now().year)
-            return filtered_queryset
+        try:
+            if kwargs['month'] and kwargs['year']:
+                month = kwargs['month']
+                year = kwargs['year']
+                return queryset.filter(last_modified__month = self.months[month],last_modified__year=int(year))
+            
+            if kwargs['month']:
+                month = kwargs['month']
+                return queryset.filter(last_modified__month=self.months[month],last_modified__year=now().year)
+        except KeyError:
+            pass
+        #for hour
+        try:
+            if kwargs['hour']:
+                hour = kwargs['hour']
+                threshold = now() - timedelta(hours=hour)
+                operator = self.get_operator(kwargs['request'])
+                if operator == 'Gt':
+                    return queryset.filter(last_modified__gt=threshold)
+                    
+                if operator == 'lt':
+                    return queryset.filter(last_modified__lt=threshold)
+                    
+                if operator == 'eq':
+                    return queryset.filter(last_modified__lte=threshold)
+        except KeyError:
+            pass
+        #for days
+        if kwargs['days']:
+            days = kwargs['days']
+            threshold = now() - timedelta(days=days)
+            operator = self.get_operator(kwargs['request'])
+            if operator == 'Gt':
+                return queryset.filter(last_modified__gt=threshold)
+                
+            if operator == 'lt':
+                return queryset.filter(last_modified__lt=threshold)
+                
+            if operator == 'eq':
+                return queryset.filter(last_modified__lte=threshold)
