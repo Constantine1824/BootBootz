@@ -33,7 +33,7 @@ class DateTimeCustomFilter(BaseFilterBackend):
             return self.filter_by_month(request,queryset)
         # return super().filter_queryset(request, queryset, view)
     
-    def get_filter_query_type(self,request) -> None | str:
+    def get_filter_query_type(self,request):
         """This gets the exact field by which it is being filtered"""
         if 'days' in request.GET:
             return 'days'
