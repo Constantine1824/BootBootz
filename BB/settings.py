@@ -154,7 +154,7 @@ WSGI_APPLICATION = 'BB.wsgi.application'
 # }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('NAME'),
         'HOST' : os.environ.get('HOST'),
         'USER' : os.environ.get('USER'),
