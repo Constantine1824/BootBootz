@@ -5,7 +5,7 @@ from datetime import timedelta
 
 
 class DateTimeCustomFilter(BaseFilterBackend):
-    def __init__(self) -> None:
+    def __init__(self):
         self.months = {
         'January' :1,
         'February' : 2,
