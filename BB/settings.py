@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['bootbootz.onrender.com']
+ALLOWED_HOSTS = []
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME: 
+       ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
@@ -153,14 +157,10 @@ WSGI_APPLICATION = 'BB.wsgi.application'
 #     }
 # }
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('NAME'),
-        'HOST' : os.environ.get('HOST'),
-        'USER' : os.environ.get('USER'),
-        'PASSWORD' : os.environ.get('PASSWORD'),
-        'PORT' : os.environ.get("PORT")
-    }
+    'default': dj_database_url.config(
+    default= os.environ.get('DATABASE_URL'),       
+     conn_max_age=600
+    )
 }
 
 # Password validation
