@@ -29,4 +29,4 @@ RUN python manage.py makemigrations
 RUN python manage.py migrate
 
 # start server
-CMD ['gunicorn', '--bind', '0.0.0.0.8000', 'BB.wsgi:application']
+CMD ["gunicorn", "--bind", "0.0.0.0.8000", "BB.wsgi:application"]
