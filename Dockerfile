@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1.2
 
 # pull official base image
-FROM python:3.9.6-alpine
+FROM python:3.10.4-alpine
 
 
 RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env
