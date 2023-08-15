@@ -1,3 +1,5 @@
+# syntax = docker/dockerfile:1.2
+
 # pull official base image
 FROM python:3.9.6-alpine
 
@@ -19,6 +21,9 @@ RUN apk update \
 RUN pip install --upgrade pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
+
+#Get environment variables at build time
+RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env cat /etc/secrets/.env
 
 #Expose
 EXPOSE 8000
