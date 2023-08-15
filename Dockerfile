@@ -26,6 +26,7 @@ COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
 ARG SECRET_KEY=$SECRET_KEY
+ARG DATABASE_URL=$DATABASE_URL
 
 #Expose
 EXPOSE 8000
