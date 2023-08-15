@@ -25,6 +25,7 @@ RUN pip install --upgrade pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
+ARG SECRET_KEY=$SECRET_KEY
 
 #Expose
 EXPOSE 8000
