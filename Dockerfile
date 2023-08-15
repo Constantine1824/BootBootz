@@ -3,7 +3,8 @@
 # pull official base image
 FROM python:3.9.6-alpine
 
-RUN echo $SECRET_KEY
+
+RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env
 
 # set working directory
 WORKDIR /BB
@@ -29,13 +30,9 @@ RUN pip install -r requirements.txt
 EXPOSE 8000
 #Collect static files and migrate
 #Get environment variables at build time
-RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env cat /etc/secrets/.env
 RUN python manage.py collectstatic --noinput
-RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env cat /etc/secrets/.env
 RUN python manage.py makemigrations
-RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env cat /etc/secrets/.env
 RUN python manage.py migrate
 
-#Get environment variables at build time
-RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env cat /etc/secrets/.env
+#Start service
 CMD ["gunicorn", "--bind", "0.0.0.0.8000", "BB.wsgi:application"]
