@@ -22,16 +22,22 @@ RUN pip install --upgrade pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
-#Get environment variables at build time
-RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env cat /etc/secrets/.env
 
 #Expose
 EXPOSE 8000
 
+#Get environment variables at build time
+RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env cat /etc/secrets/.env
 #Collect static files and migrate
 RUN python manage.py collectstatic --noinput
+#Get environment variables at build time
+RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env cat /etc/secrets/.env
 RUN python manage.py makemigrations
+#Get environment variables at build time
+RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env cat /etc/secrets/.env
 RUN python manage.py migrate
 
+#Get environment variables at build time
+RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env cat /etc/secrets/.env
 # start server
 CMD ["gunicorn", "--bind", "0.0.0.0.8000", "BB.wsgi:application"]
