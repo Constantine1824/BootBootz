@@ -235,3 +235,5 @@ MEDIA_ROOT=os.path.join(BASE_DIR,'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Payment gateway config
 PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY')
+
+CSRF_TRUSTED_ORIGINS = ['https://bb-ibz6.onrender.com']
