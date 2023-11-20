@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import CartSerializer,CartCreationSerializer
-from .models import Cart
+from .models import Cart, CartItems
 from rest_framework.generics import CreateAPIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -24,7 +24,7 @@ class CartApiView(APIView):
         """This endpoint handles the POST request and requires a list of products to be added to the cart
         """
         cart = Cart.objects.get_or_create(user=request.user)
-        serializer = CartCreationSerializer(data=request.data, context={'cart' : cart})
+        serializer = CartCreationSerializer(data=request.data, context={'cart' : cart}, many=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             response = {
@@ -48,23 +48,27 @@ class CartApiView(APIView):
 
 class DeleteFromCartAPIView(APIView):
     """This view should receive a list of items to be removed from the cart.
-    The frontend data should compulsorily be a list or this endpoint should be sent every time a user 
-    decides to delete an item from their cart.
-    For now it will be designed to be called every time a user deletes.
+        The endpoint handles the following request type:
+        - DELETE remove a particular item from the cart
     """
-    def post(self,request):
-       product_id = request.data['product_id']
-       cart = Cart.objects.get(user=request.user)
-       if cart is not None:
-           cart.products.remove(product_id)
-           cart.save()
-           return Response({
-               "detail" : "Succesfully removed"
-           }, status=status.HTTP_200_OK)
-       raise APIException({
-           'detail' : "Cart is None"
-       }, code=status.HTTP_400_BAD_REQUEST)
-    
+    permission_classes = [IsAuthenticated]
+    def delete(self, request, pk):
+        item = CartItems.objects.get(pk=pk)
+        item.delete()
+        return Response(
+            {
+                "status" : "item removed from cart"
+            }, status=status.HTTP_200_OK
+        )
+
 class ClearCartAPIView(APIView):
-    pass
+    permission_classes = [IsAuthenticated]
+    def delete(self, request):
+        items = CartItems.objects.filter(cart__user=request.user)
+        items.delete()
+        return Response(
+            {
+                "status" : 'cart cleared'
+            }
+        )
 # Create your views here.

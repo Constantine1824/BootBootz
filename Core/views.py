@@ -2,8 +2,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.exceptions import NotFound,ParseError,NotAuthenticated
 from .permissions import IsVerified
-from .models import Boots
-from .serializers import AddressCreationSerializer,BootsSerializer,ReviewsSerializer
+from .models import Boots, Variants
+from .serializers import AddressCreationSerializer,BootsSerializer,ReviewsSerializer, VariantSerializer, BootsDetailsSerializer
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -17,18 +17,23 @@ class ProductsListApiView(ListAPIView):
     filter_backends = [OrderingFilter,DateTimeCustomFilter]
     #pagination_class = PageNumberPagination
 
+
 class ProductsRetrieveApiView(APIView):
     def get(self,request,slug):
         boot = Boots.objects.get(slug=slug)
-        serializer = BootsSerializer(boot)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = BootsDetailsSerializer(boot)
+        response = {
+            "status" : "retrieved",
+            "data" : serializer.data
+        }
+        return Response(response, status=status.HTTP_200_OK)
 
 class NewArrivalsApiView(ListAPIView):
     """This view should return a queryset based on how long the goods has been added
     that is it should return a queryset of products added within the range of 5days.
     """
     serializer_class = BootsSerializer
-    queryset = Boots.objects.filter(newly_added= True, status=status.HTTP_200_OK)
+    queryset = Boots.objects.filter(newly_added= True)
 
 class SearchApiView(APIView):
     def get(self,request):

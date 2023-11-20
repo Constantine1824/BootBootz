@@ -37,16 +37,15 @@ class Boots(TimeStampedField):
         ('R',_('Restocked'))
     )
     name = models.CharField(max_length=255, blank=False, null=False)
-    sizes_available = ArrayField(base_field=models.IntegerField())
+    #sizes_available = ArrayField(base_field=models.IntegerField())
     price = models.DecimalField(max_digits=9,decimal_places=2)
     manufacturer = models.CharField(max_length=100)
-    default_img = models.ImageField(upload_to='media/default')
+    default_img = models.FileField(upload_to='media/default')#models.ImageField(upload_to='media/default')
     category = models.CharField(max_length=255, choices=category_choices)
     slug = models.SlugField(blank=True)
     availability_status = models.CharField(max_length=24,choices=status)
     newly_added = models.BooleanField(default=True)
     rating = models.IntegerField(default=0)
-    variants = models.ManyToManyField('Variants')
 
     class Meta:
         verbose_name_plural = 'Boots'
@@ -67,6 +66,7 @@ class Boots(TimeStampedField):
 
 
 class Variants(TimeStampedField):
+    boot = models.ForeignKey(Boots, on_delete=models.CASCADE, default=None, related_name='variants')
     quantity_available = models.IntegerField()
     color = models.CharField(max_length=23,blank=False)
     image_1 = models.FileField(upload_to='media')

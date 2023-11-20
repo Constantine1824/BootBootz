@@ -1,5 +1,5 @@
 from django.db import models
-from Core.models import Boots, TimeStampedField
+from Core.models import Boots, TimeStampedField, Variants
 from Auth.models import User
 
 class Cart(TimeStampedField):
@@ -12,10 +12,8 @@ class Cart(TimeStampedField):
 
 class CartItems(models.Model):
     cart = models.ForeignKey(Cart,on_delete=models.CASCADE, related_name='cartItems')
-    boots = models.ForeignKey(Boots,on_delete=models.CASCADE)
-    color = models.CharField(max_length=21, blank=False)
+    boot = models.OneToOneField(Variants,on_delete=models.CASCADE, default=None)
     quantity = models.IntegerField()
-    size = models.IntegerField()
     date_added = models.DateTimeField(auto_now_add=True)
 
 
