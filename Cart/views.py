@@ -8,39 +8,42 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import APIException
 from rest_framework.test import APISimpleTestCase
 
-class AddToCartApiView(APIView):
+class CartApiView(APIView):
+    """
+    This endpoint is responsible for adding items to cart. It accepts multiple products at once
+    The endpoint handles the following:
+    - GET request to get the cart
+    - POST - To bulk update the cart
+
+    Returns
+    - POST: A JSON response of the sent data
+    - GET: A JSON response of the cart and all cart items 
+    """
     permission_classes = [IsAuthenticated]
     def post(self,request):
-        product_id = request.data['product_id']
-        user = request.user
-        cart = Cart.objects.get(user=user)
-        if cart is not None:
-            cart.products.add(product_id)
-            cart.save()
-            serializer= CartSerializer(cart)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            cart = Cart.objects.create(user=user)
-            cart.products.add(product_id)
-            cart.save()
-            serializer= CartSerializer(cart)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-# class DetailCartAPIView(RetrieveAPIView):
-#     queryset = Cart
-#     serializer_class = CartSerializer
-
-#     def get_object(self):
-#         obj = self.queryset.objects.get(user=self.request.user,)
-#         return obj
-
-class DetailCartAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    def get(self,request):
-        cart_obj = Cart.objects.get(user=request.user)
-        serializer = CartSerializer(cart_obj)
-        if cart_obj is not None:
-            return Response(serializer.data)
+        """This endpoint handles the POST request and requires a list of products to be added to the cart
+        """
+        cart = Cart.objects.get_or_create(user=request.user)
+        serializer = CartCreationSerializer(data=request.data, context={'cart' : cart})
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            response = {
+                "status" : "added to cart",
+                "data" : serializer.data
+            }
+            return Response(response, status=status.HTTP_201_CREATED)
+        
+    def get(self, request):
+        """
+        This handles the GET request and retrieves cart data
+        """
+        queryset = Cart.objects.get(user=request.user)
+        serializer = CartSerializer(queryset)
+        response = {
+            "status" : "retrieved",
+            "data" : serializer.data
+        }
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class DeleteFromCartAPIView(APIView):

@@ -1,18 +1,27 @@
 from django.db import models
-from Core.models import Products
+from Core.models import Boots, TimeStampedField
 from Auth.models import User
 
-class Cart(models.Model):
+class Cart(TimeStampedField):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
-    products = models.ManyToManyField(Products,related_name='cart')
 
     def __str__(self):
         return self.user.username
+    
 
 
-# class CartItems(models.Model):
-#     cart = models.ForeignKey(Cart,on_delete=models.CASCADE)
-#     products = models.ForeignKey(Products,on_delete=models.CASCADE)
-#     quantity = models.IntegerField(default=1)
-#     date_added = models.DateTimeField(auto_now_add=True)
+class CartItems(models.Model):
+    cart = models.ForeignKey(Cart,on_delete=models.CASCADE, related_name='cartItems')
+    boots = models.ForeignKey(Boots,on_delete=models.CASCADE)
+    color = models.CharField(max_length=21, blank=False)
+    quantity = models.IntegerField()
+    size = models.IntegerField()
+    date_added = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return self.cart
+    
+    class Meta:
+        verbose_name_plural = 'CartItems'
 # Create your models here.

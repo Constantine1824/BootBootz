@@ -40,7 +40,7 @@ urlpatterns = [
     path('api/',include('Core.urls'), name='core'),
     path('api/',include('Admin.urls'), name='admin'),
     path('api/auth/',include('Auth.urls')),
-    #path('api/cart/',include('Cart.urls'), name='cart'),
+    path('api/cart/',include('Cart.urls'), name='cart'),
     path('api/order/', include('Order.urls')),
     path('api/payments/',include('Payments.urls'),name='payments'),
     path('',schema_view.with_ui('swagger',cache_timeout=0))

@@ -5,7 +5,6 @@ from rest_framework.viewsets import ModelViewSet,GenericViewSet
 from .serializers import BootsCreationSerializer
 from Order.serializers import OrderSerializer
 from Order.models import Order
-from rest_framework.response import Response
 from rest_framework import mixins
 from .filters import DateTimeCustomFilter
 from rest_framework.filters import SearchFilter,OrderingFilter

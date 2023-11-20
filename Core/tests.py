@@ -1,11 +1,6 @@
-from django.test import TestCase
-import json
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient
 from .serializers import BootsSerializer
-import Core.signals
-from Auth.models import AbstractUser,User
 from urllib.parse import urlencode
 from django.db.models import Q
 import pytest

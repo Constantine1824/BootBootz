@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Q
 from rest_framework.filters import OrderingFilter
-from rest_framework.pagination import PageNumberPagination
 from Admin.filters import DateTimeCustomFilter
 
 class ProductsListApiView(ListAPIView):
@@ -22,14 +21,14 @@ class ProductsRetrieveApiView(APIView):
     def get(self,request,slug):
         boot = Boots.objects.get(slug=slug)
         serializer = BootsSerializer(boot)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class NewArrivalsApiView(ListAPIView):
     """This view should return a queryset based on how long the goods has been added
     that is it should return a queryset of products added within the range of 5days.
     """
     serializer_class = BootsSerializer
-    queryset = Boots.objects.filter(newly_added= True)
+    queryset = Boots.objects.filter(newly_added= True, status=status.HTTP_200_OK)
 
 class SearchApiView(APIView):
     def get(self,request):
@@ -44,9 +43,18 @@ class SearchApiView(APIView):
                 serializer = BootsSerializer(products_query,many=True)
                 return Response(serializer.data,status=status.HTTP_200_OK)
             else:
-                raise NotFound()
+                return Response(
+                    {
+                        "status" : "Not found"
+                    },
+                    status=status.HTTP_404_NOT_FOUND
+                )
         else:
-            raise ParseError()
+            return Response(
+                {
+                    "status" : "No query found"
+                }, status=status.HTTP_400_BAD_REQUEST
+            )
     
 class CategoryAPIView(APIView):
     def get(self,request,pk):
@@ -54,7 +62,12 @@ class CategoryAPIView(APIView):
         if boot_obj is not None:
             serializer = BootsSerializer(boot_obj,many=True)
             return Response(serializer.data,status=status.HTTP_200_OK)
-        raise NotFound()
+        return Response(
+            {
+                "status" : "Not found"
+            },
+            status=status.HTTP_404_NOT_FOUND
+        )
     
 class ManufacturerAPIView(APIView):
     def get(self,request,pk):
@@ -63,7 +76,12 @@ class ManufacturerAPIView(APIView):
             serializer = BootsSerializer(boot_obj,many=True)
             return Response(serializer.data,status=status.HTTP_200_OK)
         else:
-           raise NotFound()
+            return Response(
+            {
+                "status" : "Not found"
+            },
+            status=status.HTTP_404_NOT_FOUND
+        )
 
 class ReviewsAPIView(APIView):
     """This view handles both the creation of a new review and retrieval of all 

@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'whitenoise.runserver_nostatic',
     'Payments',
-    #`'Cart',
+    'Cart',
     'Auth',
     'Core',
     'Order',

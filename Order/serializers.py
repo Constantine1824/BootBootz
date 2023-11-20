@@ -2,7 +2,7 @@ from rest_framework.serializers import ModelSerializer,CharField
 from .models import Order
 from Auth.models import User
 from Core.models import Address,Boots,Variants
-from rest_framework.exceptions import APIException,ValidationError,ParseError
+from rest_framework.exceptions import ValidationError,ParseError
 from rest_framework import serializers
 
 
@@ -21,7 +21,7 @@ class OrderCreationSerializer(serializers.Serializer):
     def check_validate(self,data):
             # First we check for the validity of the user
         boot_obj : Boots
-        variant : BootsVariants
+        variant : Variants
         username = data['user']
         user = User.objects.get(username=username)
         if user is None:
@@ -51,8 +51,8 @@ class OrderCreationSerializer(serializers.Serializer):
                 else:
                     # Check the color and quantity if its available or not
                     try:
-                        variant = BootsVariants.objects.get(boot=boot_obj,color=color)
-                    except BootsVariants.DoesNotExist:
+                        variant = Variants.objects.get(boot=boot_obj,color=color)
+                    except Variants.DoesNotExist:
                         raise ValidationError({
                                 'detail' : 'This product is not available'
                             })
