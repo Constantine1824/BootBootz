@@ -37,12 +37,12 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/',include('Core.urls'), name='core'),
-    path('api/',include('Admin.urls'), name='admin'),
-    path('api/auth/',include('Auth.urls')),
-    path('api/cart/',include('Cart.urls'), name='cart'),
-    path('api/order/', include('Order.urls')),
-    path('api/payments/',include('Payments.urls'),name='payments'),
+    path('api/v1/',include('Core.urls'), name='core'),
+    path('api/v1/',include('Admin.urls'), name='admin'),
+    path('api/v1/auth/',include('Auth.urls')),
+    path('api/v1/cart/',include('Cart.urls'), name='cart'),
+    path('api/v1/order/', include('Order.urls')),
+    path('api/v1/payments/',include('Payments.urls'),name='payments'),
     path('',schema_view.with_ui('swagger',cache_timeout=0))
     
 ]
