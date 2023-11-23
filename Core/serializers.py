@@ -26,7 +26,7 @@ class AddressCreationSerializer(ModelSerializer):
 class VariantSerializer(ModelSerializer):
     class Meta:
         model = Variants
-        fields = ['quantity_available', 'color', 'image_1', 'image_2', 'image_3']
+        fields = ['id','quantity_available', 'color', 'image_1', 'image_2', 'image_3']
 
 class BootsSerializer(ModelSerializer):
     class Meta:
@@ -37,7 +37,7 @@ class BootsDetailsSerializer(ModelSerializer):
     variants = VariantSerializer(many=True, read_only=True)
     class Meta:
         model = Boots
-        fields = ['name', 'price', 'manufacturer', 'default_img', 'category', 'rating', 'availability_status', 'variants']
+        fields = ['id','name', 'price', 'manufacturer', 'default_img', 'category', 'rating', 'availability_status', 'variants']
 
 class ReviewsSerializer(ModelSerializer):
 

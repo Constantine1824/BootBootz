@@ -30,8 +30,8 @@ ARG DATABASE_URL=$DATABASE_URL
 
 #Expose
 EXPOSE 8000
+
 #Collect static files and migrate
-#Get environment variables at build time
 RUN python manage.py collectstatic --noinput
 RUN python manage.py makemigrations
 RUN python manage.py migrate

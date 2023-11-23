@@ -15,13 +15,20 @@ class VariantSerializer(ModelSerializer):
 
     class Meta:
         model = Variants
-        fields = ['boot', 'color']
+        fields = [
+            'id',
+            'boot_detail',
+            'quantity_available',
+            'color',
+            'image_1',
+            'image_2'
+        ]
 
 
 
 
 class CartItemsSerializer(ModelSerializer):
-    boot_details = VariantSerializer(source='boot') 
+    cart_product_detail = VariantSerializer(source='boot') 
     class Meta:
         model = CartItems
         fields = '__all__'
@@ -37,21 +44,18 @@ class CartSerializer(ModelSerializer):
 
 class CartCreationSerializer(ModelSerializer):
     cart = CartSerializer(read_only=True)
+    # cartItemDetail = VariantSerializer(read_only=True, source='boot')
     class Meta:
         model = CartItems
         fields = '__all__'
 
 
-    def bulk_create(self, validated_data, cart):
-        items = [self.Meta.model(cart=cart,**item) for item in validated_data]
-        cartItems = CartItems.objects.bulk_create(items)
-        return cartItems
-
-
     def create(self, validated_data):
         cart = self.context['cart']
         try:
-            cartItems = self.bulk_create(validated_data, cart)
+            cartItems = self.Meta.model(**validated_data)
+            cartItems.cart = cart
+            cartItems.save()
             return cartItems
         except Exception as e:
            print(e)
