@@ -4,7 +4,7 @@ from Core.permissions import IsVerified
 from rest_framework.permissions import IsAuthenticated
 from Order.models import Order
 from rest_framework.exceptions import ParseError
-from .payment_helper import Payment
+from .payment_helper import initiate, verify
 from rest_framework import status
 
 class InitializePaymentApiView(APIView):
@@ -13,14 +13,13 @@ class InitializePaymentApiView(APIView):
         order_id = request.data['tracking_id']
         user = request.user
         email = user.email
-        payment = Payment()
         try:
             order_obj = Order.objects.get(tracking_id=order_id)
             if order_obj.status!= 'PEN':
                 raise ParseError('Wrong order')
             try:
-                price = order_obj.order_summary['total_price']
-                resp = payment.initiate(email=email,amount=price,tracking_id=order_id)
+                price = order_obj.total_price
+                resp = initiate(email=email,amount=price,tracking_id=order_id)
                 return Response(resp)
             except Exception as e:
                 return Response(e)
@@ -32,7 +31,7 @@ class VerifyPayment(APIView):
     permission_classes = [IsAuthenticated,IsVerified]
     def get(self,request,ref_id):
         payment = Payment()
-        resp = payment.verify(ref_id)
+        resp = verify(ref_id)
         if resp:
             order = Order.objects.get(tracking_id=ref_id)
             order.status = 'APR'

@@ -16,7 +16,6 @@ class Order(models.Model):
     )
     user = models.ForeignKey(User,on_delete=models.CASCADE) 
     tracking_id = models.CharField(max_length=18,blank=True)
-    #order_summary = models.JSONField(null=True)
     status = models.CharField(max_length=15, choices=status_codes)
     delivery_fee = models.DecimalField(default=210.00,decimal_places=2,max_digits=7)
     created_at = models.DateTimeField(default=now())
