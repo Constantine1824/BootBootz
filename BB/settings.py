@@ -79,7 +79,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES' : [
         'rest_framework_simplejwt.authentication.JWTAuthentication'
     ],
-    'PAGE_SIZE' : '50',
     'ORDERING_PARAM' : 'order_by'
 }
 

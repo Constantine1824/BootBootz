@@ -18,10 +18,10 @@ class Order(models.Model):
     tracking_id = models.CharField(max_length=18,blank=True)
     status = models.CharField(max_length=15, choices=status_codes)
     delivery_fee = models.DecimalField(default=210.00,decimal_places=2,max_digits=7)
-    created_at = models.DateTimeField(default=now())
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     delivery_address = models.ForeignKey(Address,null=True, on_delete=models.SET_NULL)
-    total_price = models.DecimalField(decimal_places=2)
+    total_price = models.DecimalField(decimal_places=2, max_digits=7)
 
     def save(self,*args, **kwargs):
         tracking_id = ''.join(random.choices(string.ascii_uppercase + string.digits,k=15))
@@ -36,7 +36,7 @@ class Order(models.Model):
 
 class OrderItems(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='orderItems')
-    product = models.OneToOneField(Variants, on_delete=models.SET_NULL)
+    product = models.OneToOneField(Variants, on_delete=models.SET_NULL, null=True)
     quantity = models.IntegerField()
     discount = models.IntegerField(default=0)
 
