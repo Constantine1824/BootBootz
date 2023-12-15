@@ -15,7 +15,7 @@ class ProductsListApiView(ListAPIView):
     serializer_class =BootsSerializer
     queryset = Boots.objects.all()
     filter_backends = [OrderingFilter,DateTimeCustomFilter]
-    #pagination_class = PageNumberPagination
+
 
 
 class ProductsRetrieveApiView(APIView):
