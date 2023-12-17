@@ -147,7 +147,7 @@ WSGI_APPLICATION = 'BB.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-if not DEBUG:
+if DEBUG is False:
     DATABASES = {
     'default': dj_database_url.config(
     default= config('DATABASE_URL'),       

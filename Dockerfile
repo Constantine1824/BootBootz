@@ -27,6 +27,9 @@ RUN pip install -r requirements.txt
 
 ARG SECRET_KEY=$SECRET_KEY
 ARG DATABASE_URL=$DATABASE_URL
+ARG DEBUG=$DEBUG
+ARG username=$username
+ARG password=$password
 
 #Expose
 EXPOSE 8000
