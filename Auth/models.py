@@ -19,7 +19,7 @@ class OneTimeToken(models.Model):
     time_created = models.DateTimeField(auto_now_add=True)
     type = models.CharField(max_length=10,choices=choices,default='CONFIRM')
 
-    def is_valid(self, expiration_time:datetime.datetime):
+    def is_valid(self):
         time_created = self.time_created.minute
         time_checked = datetime.datetime.now().minute
         duration = time_checked - time_created
