@@ -40,7 +40,7 @@ RUN python manage.py makemigrations
 RUN python manage.py migrate
 
 #Create Superuser
-RUN python manage.py createsuperuser --noinput --username=$username --password=$password
+RUN python manage.py createsuperuser --noinput --username $username --password $password
 
 #Start service
 CMD ["waitress-serve", "--port=8000", "BB.wsgi:application"]
