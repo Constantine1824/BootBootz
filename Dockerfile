@@ -12,6 +12,17 @@ WORKDIR /BB
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+# Args
+ARG username
+ARG password
+ARG SECRET_KEY
+ARG DEBUG
+ARG DATABASE_URL
+
+
+ENV username=$username
+ENV password=$password
+
 # copy project
 COPY . /BB/
 
