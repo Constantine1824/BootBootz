@@ -3,8 +3,12 @@
 # pull official base image
 FROM python:3.10.4-alpine
 
-
-RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env
+RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env \
+    echo "SECRET_KEY=$(cat /etc/secrets/.env | grep SECRET_KEY | cut -d'=' -f2)" >> /etc/environment \
+    && echo "DATABASE_URL=$(cat /etc/secrets/.env | grep DATABASE_URL | cut -d'=' -f2)" >> /etc/environment \
+    && echo "DEBUG=$(cat /etc/secrets/.env | grep DEBUG | cut -d'=' -f2)" >> /etc/environment \
+    && echo "username=$(cat /etc/secrets/.env | grep username | cut -d'=' -f2)" >> /etc/environment \
+    && echo "password=$(cat /etc/secrets/.env | grep password | cut -d'=' -f2)" >> /etc/environment
 
 # set working directory
 WORKDIR /BB
@@ -24,12 +28,6 @@ RUN apk update \
 RUN pip install --upgrade pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
-
-ARG SECRET_KEY=$SECRET_KEY
-ARG DATABASE_URL=$DATABASE_URL
-ARG DEBUG=$DEBUG
-ARG username=$username
-ARG password=$password
 
 #Expose
 EXPOSE 8000
