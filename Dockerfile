@@ -4,12 +4,8 @@
 FROM python:3.10.4-alpine
 
 RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env \
-    echo "SECRET_KEY=$(cat /etc/secrets/.env | grep SECRET_KEY | cut -d'=' -f2)" >> /etc/environment \
-    && echo "DATABASE_URL=$(cat /etc/secrets/.env | grep DATABASE_URL | cut -d'=' -f2)" >> /etc/environment \
-    && echo "DEBUG=$(cat /etc/secrets/.env | grep DEBUG | cut -d'=' -f2)" >> /etc/environment \
-    && echo "username=$(cat /etc/secrets/.env | grep username | cut -d'=' -f2)" >> /etc/environment \
-    && echo "password=$(cat /etc/secrets/.env | grep password | cut -d'=' -f2)" >> /etc/environment
-
+    && export $(grep -v '^#' /etc/secrets/.env | xargs)
+    
 # set working directory
 WORKDIR /BB
 
