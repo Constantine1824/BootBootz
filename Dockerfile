@@ -3,8 +3,7 @@
 # pull official base image
 FROM python:3.10.4-alpine
 
-RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env \
-    && set -o allexport && source /etc/secrets/.env && set +o allexport
+RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env && set -o allexport && source /etc/secrets/.env && set +o allexport
 
 # set working directory
 WORKDIR /BB
