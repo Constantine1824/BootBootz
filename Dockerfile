@@ -43,7 +43,7 @@ RUN python manage.py collectstatic --noinput
 RUN python manage.py makemigrations
 RUN python manage.py migrate
 
-RUN echo $username
+RUN echo "This is the username: $username"
 #Create Superuser
 RUN python manage.py createsuperuser --username $username --password $password
 
