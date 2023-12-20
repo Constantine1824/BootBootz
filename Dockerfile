@@ -18,10 +18,12 @@ ARG password=$password
 ARG SECRET_KEY=$SECRET_KEY
 ARG DEBUG=$DEBUG
 ARG DATABASE_URL=$DATABASE_URL
+ARG EMAIL_HOST_USER=$EMAIL_HOST_USER
 
 
 ENV DJANGO_SUPERUSER_USERNAME=$username
 ENV DJANGO_SUPERUSER_PASSWORD=$password
+ENV EMAIL=$EMAIL_HOST_USER
 
 # copy project
 COPY . /BB/
@@ -45,7 +47,7 @@ RUN python manage.py migrate
 
 RUN echo "This is the username: $username"
 #Create Superuser
-RUN python manage.py createsuperuser --no-input
+RUN python manage.py createsuperuser --no-input --email $EMAIL
 
 #Start service
 CMD ["waitress-serve", "--port=8000", "BB.wsgi:application"]
