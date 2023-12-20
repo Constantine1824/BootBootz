@@ -4,8 +4,8 @@
 FROM python:3.10.4-alpine
 
 RUN --mount=type=secret,id=_env,dst=/etc/secrets/.env \
-    && export $(grep -v '^#' /etc/secrets/.env | xargs)
-    
+        export $(grep -v '^#' /etc/secrets/.env | xargs)
+
 # set working directory
 WORKDIR /BB
 
